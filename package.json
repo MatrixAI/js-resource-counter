@@ -1,0 +1,45 @@
+{
+  "name": "resource-counter",
+  "version": "0.0.1",
+  "description": "Sequentially Allocatable and Deallocatable Resource Counter",
+  "keywords": [
+    "counter",
+    "resource"
+  ],
+  "author": "Roger Qiu",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MatrixAI/js-resource-counter.git"
+  },
+  "module": "lib/Counter.js",
+  "main": "dist/Counter.js",
+  "scripts": {
+    "test": "ava -v",
+    "doc": "jsdoc ./lib --destination ./doc --recurse",
+    "rollup": "rollup --config",
+    "build": "npm test && npm run doc && npm run rollup"
+  },
+  "ava": {
+    "require": "babel-register",
+    "babel": "inherit"
+  },
+  "engines": {
+    "node": ">=4.0.0"
+  },
+  "dependencies": {
+    "bitset.js": "^4.0.1"
+  },
+  "devDependencies": {
+    "ava": "^0.19.1",
+    "babel-cli": "^6.24.1",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "^1.5.2",
+    "babel-register": "^6.24.1",
+    "jsdoc": "^3.4.3",
+    "rollup": "^0.43.0",
+    "rollup-plugin-babel": "^2.7.1",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-node-resolve": "^3.0.0"
+  }
+}
