@@ -20,6 +20,7 @@ c.deallocate(second);
 c.deallocate(third);
 console.log(c.allocate() === second);
 console.log(c.allocate() === third);
+console.log(c.allocate() === (fourth + 1));
 ```
 
 Documentation
