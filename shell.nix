@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   with pkgs;
   stdenv.mkDerivation {
-    name = "memory-fs";
+    name = "js-resource-counter";
     src = ./.;
-    buildInputs = [ python2 nodejs nodePackages.node2nix ];
+    buildInputs = [ nodejs python2 ];
   }
