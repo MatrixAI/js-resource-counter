@@ -11,8 +11,6 @@ export default [
     format: 'umd',
     moduleName: 'Counter',
     plugins: [
-      resolve(),
-      commonjs(),
       babel({
         babelrc: false,
         exclude: 'node_modules/**',
@@ -23,7 +21,9 @@ export default [
             "browsers": ["last 2 versions"]
           }
         }]]
-      })
+      }),
+      resolve(),
+      commonjs()
     ],
     dest: 'dist/Counter-browser.js'
   },
@@ -31,7 +31,6 @@ export default [
     entry: 'lib/Counter.js',
     format: 'cjs',
     plugins: [
-      resolve(),
       babel({
         babelrc: false,
         exclude: 'node_modules/**',
@@ -42,7 +41,8 @@ export default [
             node: '6.0.0'
           }
         }]]
-      })
+      }),
+      resolve()
     ],
     external: Object.keys(packageJson.dependencies),
     dest: 'dist/Counter.js'
