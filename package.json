@@ -25,7 +25,7 @@
     "babel": "inherit"
   },
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=6.11.1"
   },
   "dependencies": {
     "bitset.js": "^4.0.1"

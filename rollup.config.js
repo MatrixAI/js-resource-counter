@@ -1,6 +1,9 @@
+import fs from 'fs';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel';
+
+const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 
 export default [
   {
@@ -36,12 +39,12 @@ export default [
         presets: [['env', {
           modules: false,
           targets: {
-            node: '4.0.0'
+            node: '6.0.0'
           }
         }]]
       })
     ],
-    external: ["bitset.js"],
+    external: Object.keys(packageJson.dependencies),
     dest: 'dist/Counter.js'
   }
 ];
