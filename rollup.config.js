@@ -8,29 +8,6 @@ const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 export default [
   {
     entry: 'lib/Counter.js',
-    format: 'umd',
-    moduleName: 'Counter',
-    plugins: [
-      babel({
-        babelrc: false,
-        exclude: 'node_modules/**',
-        presets: [['env', {
-          modules: false,
-          targets: {
-            "browsers": ["last 2 versions"]
-          },
-          debug: true
-        }]]
-      }),
-      resolve({
-        preferBuiltins: false
-      }),
-      commonjs()
-    ],
-    dest: 'dist/Counter-browser.js'
-  },
-  {
-    entry: 'lib/Counter.js',
     format: 'cjs',
     external: Object.keys(packageJson.dependencies),
     plugins: [
@@ -46,5 +23,29 @@ export default [
       })
     ],
     dest: 'dist/Counter.js'
+  },
+  {
+    entry: 'lib/Counter.js',
+    format: 'umd',
+    moduleName: 'Counter',
+    plugins: [
+      babel({
+        babelrc: false,
+        exclude: 'node_modules/**',
+        presets: [['env', {
+          modules: false,
+          targets: {
+            "browsers": ["last 2 versions"]
+          },
+          debug: true
+        }]]
+      }),
+      resolve({
+        preferBuiltins: false,
+        browser: true
+      }),
+      commonjs()
+    ],
+    dest: 'dist/Counter-browser.js'
   }
 ];
