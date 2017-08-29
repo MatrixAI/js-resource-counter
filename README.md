@@ -40,3 +40,10 @@ npm run build
 It will run tests, generate documentation and output multiple targets. One for browsers and one for nodejs. See `rollup.config.js` to see the target specification.
 
 If your bundler is aware of the module field in `package.json`, you'll get the ES6 module directly.
+
+Once you've updated the package run this:
+
+```
+npm version <update_type>
+npm publish
+```

@@ -14,6 +14,7 @@
   },
   "module": "lib/Counter.js",
   "main": "dist/Counter.js",
+  "browser": "dist/Counter-browser.js",
   "scripts": {
     "test": "ava -v",
     "doc": "jsdoc ./lib --destination ./doc --recurse",
