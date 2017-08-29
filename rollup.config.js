@@ -14,15 +14,17 @@ export default [
       babel({
         babelrc: false,
         exclude: 'node_modules/**',
-        plugins: ['external-helpers'],
         presets: [['env', {
           modules: false,
           targets: {
             "browsers": ["last 2 versions"]
-          }
+          },
+          debug: true
         }]]
       }),
-      resolve(),
+      resolve({
+        preferBuiltins: false
+      }),
       commonjs()
     ],
     dest: 'dist/Counter-browser.js'
@@ -30,21 +32,19 @@ export default [
   {
     entry: 'lib/Counter.js',
     format: 'cjs',
+    external: Object.keys(packageJson.dependencies),
     plugins: [
       babel({
         babelrc: false,
         exclude: 'node_modules/**',
-        plugins: ['external-helpers'],
         presets: [['env', {
           modules: false,
           targets: {
             node: '6.0.0'
           }
         }]]
-      }),
-      resolve()
+      })
     ],
-    external: Object.keys(packageJson.dependencies),
     dest: 'dist/Counter.js'
   }
 ];

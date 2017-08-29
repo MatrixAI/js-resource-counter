@@ -952,71 +952,13 @@ var bitset = createCommonjsModule(function (module, exports) {
 })(commonjsGlobal);
 });
 
-var classCallCheck = function (instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-};
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-  return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) defineProperties(Constructor, staticProps);
-    return Constructor;
-  };
-}();
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-
-
-
-
-
-
-
-
-var inherits = function (subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-  }
-
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-};
-
-
-
-
-
-
-
-
-
-
-
-var possibleConstructorReturn = function (self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }
-
-  return call && (typeof call === "object" || typeof call === "function") ? call : self;
-};
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /** @module Counter */
 
@@ -1113,7 +1055,7 @@ function setupBitMapConstructors(blockSize) {
      * @param {number} depth
      */
     function BitMapTree(begin, depth) {
-      classCallCheck(this, BitMapTree);
+      _classCallCheck(this, BitMapTree);
 
       this.begin = begin;
       this.depth = depth;
@@ -1126,9 +1068,9 @@ function setupBitMapConstructors(blockSize) {
      */
 
 
-    createClass(BitMapTree, [{
+    _createClass(BitMapTree, [{
       key: 'set',
-      value: function set$$1(index) {
+      value: function set(index) {
         setBit(this.bitMap, index);
       }
 
@@ -1143,6 +1085,7 @@ function setupBitMapConstructors(blockSize) {
         unsetBit(this.bitMap, index);
       }
     }]);
+
     return BitMapTree;
   }();
 
@@ -1155,15 +1098,16 @@ function setupBitMapConstructors(blockSize) {
    */
 
   var Leaf = function (_BitMapTree) {
-    inherits(Leaf, _BitMapTree);
+    _inherits(Leaf, _BitMapTree);
 
     /**
      * Creates a Leaf
      * @param {number} begin
      */
     function Leaf(begin) {
-      classCallCheck(this, Leaf);
-      return possibleConstructorReturn(this, (Leaf.__proto__ || Object.getPrototypeOf(Leaf)).call(this, begin, 0));
+      _classCallCheck(this, Leaf);
+
+      return _possibleConstructorReturn(this, (Leaf.__proto__ || Object.getPrototypeOf(Leaf)).call(this, begin, 0));
     }
 
     /**
@@ -1172,7 +1116,7 @@ function setupBitMapConstructors(blockSize) {
      */
 
 
-    createClass(Leaf, [{
+    _createClass(Leaf, [{
       key: 'allocate',
       value: function allocate(callback) {
         var index = firstUnset(this.bitMap);
@@ -1202,6 +1146,7 @@ function setupBitMapConstructors(blockSize) {
         }
       }
     }]);
+
     return Leaf;
   }(BitMapTree);
 
@@ -1213,7 +1158,7 @@ function setupBitMapConstructors(blockSize) {
    */
 
   var Node = function (_BitMapTree2) {
-    inherits(Node, _BitMapTree2);
+    _inherits(Node, _BitMapTree2);
 
     /**
      * Creates a Node
@@ -1221,9 +1166,9 @@ function setupBitMapConstructors(blockSize) {
      * @param {number} depth
      */
     function Node(begin, depth) {
-      classCallCheck(this, Node);
+      _classCallCheck(this, Node);
 
-      var _this2 = possibleConstructorReturn(this, (Node.__proto__ || Object.getPrototypeOf(Node)).call(this, begin, depth));
+      var _this2 = _possibleConstructorReturn(this, (Node.__proto__ || Object.getPrototypeOf(Node)).call(this, begin, depth));
 
       _this2.bitMapTrees = [];
       return _this2;
@@ -1235,7 +1180,7 @@ function setupBitMapConstructors(blockSize) {
      */
 
 
-    createClass(Node, [{
+    _createClass(Node, [{
       key: 'pushChild',
       value: function pushChild(child) {
         var index = this.bitMapTrees.push(child) - 1;
@@ -1331,6 +1276,7 @@ function setupBitMapConstructors(blockSize) {
         }
       }
     }]);
+
     return Node;
   }(BitMapTree);
 
@@ -1357,7 +1303,7 @@ var Counter = function () {
    * @throws {TypeError} - Will throw if blockSize is not a multiple of 32
    */
   function Counter(begin, blockSize) {
-    classCallCheck(this, Counter);
+    _classCallCheck(this, Counter);
 
     if (typeof begin === 'undefined') begin = 0;
     if (blockSize && blockSize % 32 !== 0) {
@@ -1377,7 +1323,7 @@ var Counter = function () {
    */
 
 
-  createClass(Counter, [{
+  _createClass(Counter, [{
     key: 'allocate',
     value: function allocate() {
       var resultCounter = void 0;
@@ -1405,6 +1351,7 @@ var Counter = function () {
       this._bitMapTree.deallocate(counter - this._begin, function () {});
     }
   }]);
+
   return Counter;
 }();
 
