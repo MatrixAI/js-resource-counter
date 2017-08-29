@@ -12,8 +12,8 @@
     "type": "git",
     "url": "https://github.com/MatrixAI/js-resource-counter.git"
   },
-  "module": "lib/Counter.js",
-  "main": "dist/Counter.js",
+  "main": "dist/Counter.cjs.js",
+  "module": "dist/Counter.es.js",
   "browser": "dist/Counter-browser.js",
   "scripts": {
     "test": "ava -v",

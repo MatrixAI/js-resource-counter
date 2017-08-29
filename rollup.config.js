@@ -8,6 +8,24 @@ const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 export default [
   {
     entry: 'lib/Counter.js',
+    format: 'es',
+    external: Object.keys(packageJson.dependencies),
+    plugins: [
+      babel({
+        babelrc: false,
+        exclude: 'node_modules/**',
+        presets: [['env', {
+          modules: false,
+          targets: {
+            node: '6.0.0'
+          }
+        }]]
+      })
+    ],
+    dest: 'dist/Counter.es.js'
+  },
+  {
+    entry: 'lib/Counter.js',
     format: 'cjs',
     external: Object.keys(packageJson.dependencies),
     plugins: [
@@ -22,7 +40,7 @@ export default [
         }]]
       })
     ],
-    dest: 'dist/Counter.js'
+    dest: 'dist/Counter.cjs.js'
   },
   {
     entry: 'lib/Counter.js',
@@ -36,8 +54,7 @@ export default [
           modules: false,
           targets: {
             "browsers": ["last 2 versions"]
-          },
-          debug: true
+          }
         }]]
       }),
       resolve({
