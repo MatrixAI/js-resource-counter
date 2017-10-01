@@ -141,7 +141,7 @@ function setupBitMapConstructors(blockSize) {
      * @param {function} callback
      */
     allocate(callback) {
-      let index = firstUnset(this.bitMap);
+      const index = firstUnset(this.bitMap);
       if (index !== null) {
         setBit(this.bitMap, index);
         callback(this.begin + index, this.bitMap);
@@ -156,7 +156,7 @@ function setupBitMapConstructors(blockSize) {
      * @param {function} callback
      */
     deallocate(counter, callback) {
-      let index = Math.floor((counter - this.begin) / Math.pow(blockSize, this.depth));
+      const index = Math.floor((counter - this.begin) / Math.pow(blockSize, this.depth));
       if (index >= 0 && index < blockSize) {
         unsetBit(this.bitMap, index);
         callback(this.bitMap);
@@ -188,7 +188,7 @@ function setupBitMapConstructors(blockSize) {
      * @param {Leaf|Node} child
      */
     pushChild(child) {
-      let index = this.bitMapTrees.push(child) - 1;
+      const index = this.bitMapTrees.push(child) - 1;
       if (allSet(child.bitMap)) setBit(this.bitMap, index);
     }
 
@@ -209,7 +209,7 @@ function setupBitMapConstructors(blockSize) {
      * @param {function} callback
      */
     allocate(callback) {
-      let index = firstUnset(this.bitMap);
+      const index = firstUnset(this.bitMap);
       if (index === null) {
         callback(null, null);
       } else if (this.bitMapTrees[index]) {
@@ -224,7 +224,7 @@ function setupBitMapConstructors(blockSize) {
         if (this.bitMapTrees.length) {
           newBegin = this.bitMapTrees[index - 1].begin + Math.pow(blockSize, this.depth);
         }
-        let newDepth = this.depth - 1;
+        const newDepth = this.depth - 1;
         let child;
         if (newDepth === 0) {
           child = new Leaf(newBegin);
@@ -251,9 +251,9 @@ function setupBitMapConstructors(blockSize) {
      * @param {function} callback
      */
     deallocate(counter, callback) {
-      let index = Math.floor((counter - this.begin) / Math.pow(blockSize, this.depth));
+      const index = Math.floor((counter - this.begin) / Math.pow(blockSize, this.depth));
       if (this.bitMapTrees[index]) {
-        let allSetPrior = allSet(this.bitMapTrees[index].bitMap);
+        const allSetPrior = allSet(this.bitMapTrees[index].bitMap);
         this.bitMapTrees[index].deallocate(counter, bitMap => {
           if (bitMap && allSetPrior) {
             unsetBit(this.bitMap, index);
@@ -314,7 +314,7 @@ class Counter {
     if (resultCounter !== null) {
       return this._begin + resultCounter;
     } else {
-      let newRoot = new this._bitMapConst.Node(this._bitMapTree.begin, this._bitMapTree.depth + 1);
+      const newRoot = new this._bitMapConst.Node(this._bitMapTree.begin, this._bitMapTree.depth + 1);
       newRoot.pushChild(this._bitMapTree);
       this._bitMapTree = newRoot;
       return this.allocate();
