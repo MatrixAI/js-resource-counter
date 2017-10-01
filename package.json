@@ -1,6 +1,6 @@
 {
   "name": "resource-counter",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Sequentially Allocatable and Deallocatable Resource Counter",
   "keywords": [
     "counter",
