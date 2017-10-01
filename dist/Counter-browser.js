@@ -1112,15 +1112,21 @@ function setupBitMapConstructors(blockSize) {
 
     /**
      * Allocates a counter and sets the corresponding bit for the bitmap
+     * @param {?number} counter
      * @param {function} callback
      */
 
 
     _createClass(Leaf, [{
       key: 'allocate',
-      value: function allocate(callback) {
-        var index = firstUnset(this.bitMap);
-        if (index !== null) {
+      value: function allocate(counter, callback) {
+        var index = void 0;
+        if (counter === null) {
+          index = firstUnset(this.bitMap);
+        } else {
+          index = counter - this.begin;
+        }
+        if (index !== null && index >= 0 && index < blockSize) {
           setBit(this.bitMap, index);
           callback(this.begin + index, this.bitMap);
         } else {
@@ -1137,7 +1143,7 @@ function setupBitMapConstructors(blockSize) {
     }, {
       key: 'deallocate',
       value: function deallocate(counter, callback) {
-        var index = Math.floor((counter - this.begin) / Math.pow(blockSize, this.depth));
+        var index = counter - this.begin;
         if (index >= 0 && index < blockSize) {
           unsetBit(this.bitMap, index);
           callback(this.bitMap);
@@ -1175,15 +1181,21 @@ function setupBitMapConstructors(blockSize) {
     }
 
     /**
-     * Pushes a child node or leaf to the terminal end
+     * Sets a child node or leaf
+     * If the index is left null, then the child is pushed onto the terminal end
+     * @param {?number} index
      * @param {Leaf|Node} child
      */
 
 
     _createClass(Node, [{
-      key: 'pushChild',
-      value: function pushChild(child) {
-        var index = this.bitMapTrees.push(child) - 1;
+      key: 'setChild',
+      value: function setChild(index, child) {
+        if (index === null) {
+          index = this.bitMapTrees.push(child) - 1;
+        } else {
+          this.bitMapTrees[index] = child;
+        }
         if (allSet(child.bitMap)) setBit(this.bitMap, index);
       }
 
@@ -1194,9 +1206,7 @@ function setupBitMapConstructors(blockSize) {
     }, {
       key: 'popChild',
       value: function popChild() {
-        if (this.bitMapTrees.length) {
-          this.bitMapTrees.pop();
-        }
+        this.bitMapTrees.pop();
       }
 
       /**
@@ -1204,29 +1214,32 @@ function setupBitMapConstructors(blockSize) {
        * Passes a continuation to the child allocate that will
        * set the current bitmap if the child bitmap is now all set
        * It will also lazily create the child if it doesn't already exist
+       * @param {?number} counter
        * @param {function} callback
        */
 
     }, {
       key: 'allocate',
-      value: function allocate(callback) {
+      value: function allocate(counter, callback) {
         var _this3 = this;
 
-        var index = firstUnset(this.bitMap);
-        if (index === null) {
+        var index = void 0;
+        if (counter === null) {
+          index = firstUnset(this.bitMap);
+        } else {
+          index = Math.floor((counter - this.begin) / Math.pow(blockSize, this.depth));
+        }
+        if (index === null || index < 0 || index >= blockSize) {
           callback(null, null);
         } else if (this.bitMapTrees[index]) {
-          this.bitMapTrees[index].allocate(function (counter, bitMap) {
+          this.bitMapTrees[index].allocate(counter, function (counter, bitMap) {
             if (bitMap && allSet(bitMap)) {
               setBit(_this3.bitMap, index);
             }
             callback(counter, _this3.bitMap);
           });
         } else {
-          var newBegin = this.begin;
-          if (this.bitMapTrees.length) {
-            newBegin = this.bitMapTrees[index - 1].begin + Math.pow(blockSize, this.depth);
-          }
+          var newBegin = this.begin + index * Math.pow(blockSize, this.depth);
           var newDepth = this.depth - 1;
           var child = void 0;
           if (newDepth === 0) {
@@ -1234,8 +1247,8 @@ function setupBitMapConstructors(blockSize) {
           } else {
             child = new Node(newBegin, newDepth);
           }
-          this.pushChild(child);
-          child.allocate(function (counter, bitMap) {
+          this.setChild(index, child);
+          child.allocate(counter, function (counter, bitMap) {
             if (bitMap && allSet(bitMap)) {
               setBit(_this3.bitMap, index);
             }
@@ -1307,7 +1320,7 @@ var Counter = function () {
 
     if (typeof begin === 'undefined') begin = 0;
     if (blockSize && blockSize % 32 !== 0) {
-      throw TypeError('Blocksize for BitMapTree must be a multiple of 32');
+      throw new TypeError('Blocksize for BitMapTree must be a multiple of 32');
     } else {
       // JavaScript doesn't yet have 64 bit numbers so we default to 32
       blockSize = 32;
@@ -1319,24 +1332,34 @@ var Counter = function () {
 
   /**
    * Allocates a counter sequentially
+   * If a counter is specified, it will allocate it explicitly
+   * But it will skip over intermediate children, and subsequent allocations is still sequential
+   * @param {number} [counter]
    * @returns {number}
+   * @throws {RangeError} - Will throw if the explicitly allocated counter is out of bounds
    */
 
 
   _createClass(Counter, [{
     key: 'allocate',
-    value: function allocate() {
-      var resultCounter = void 0;
-      this._bitMapTree.allocate(function (counter, bitMap) {
-        resultCounter = counter;
+    value: function allocate(counter) {
+      var index = null;
+      if (counter !== undefined) {
+        if (counter < this._begin) {
+          throw new RangeError('Counter needs to be greater or equal to the counter beginning offset');
+        }
+        index = counter - this._begin;
+      }
+      this._bitMapTree.allocate(index, function (index_, bitMap) {
+        index = index_;
       });
-      if (resultCounter !== null) {
-        return this._begin + resultCounter;
+      if (index !== null) {
+        return index + this._begin;
       } else {
         var newRoot = new this._bitMapConst.Node(this._bitMapTree.begin, this._bitMapTree.depth + 1);
-        newRoot.pushChild(this._bitMapTree);
+        newRoot.setChild(null, this._bitMapTree);
         this._bitMapTree = newRoot;
-        return this.allocate();
+        return this.allocate(counter);
       }
     }
 

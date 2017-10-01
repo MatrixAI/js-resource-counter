@@ -162,11 +162,17 @@ function setupBitMapConstructors (blockSize) {
 
     /**
      * Allocates a counter and sets the corresponding bit for the bitmap
+     * @param {?number} counter
      * @param {function} callback
      */
-    allocate (callback) {
-      const index = firstUnset(this.bitMap);
-      if (index !== null) {
+    allocate (counter, callback) {
+      let index;
+      if (counter === null) {
+        index = firstUnset(this.bitMap);
+      } else {
+        index = counter - this.begin;
+      }
+      if (index !== null &amp;&amp; index >= 0 &amp;&amp; index &lt; blockSize) {
         setBit(this.bitMap, index);
         callback(this.begin + index, this.bitMap);
       } else {
@@ -180,9 +186,7 @@ function setupBitMapConstructors (blockSize) {
      * @param {function} callback
      */
     deallocate (counter, callback) {
-      const index = Math.floor(
-        (counter - this.begin) / (blockSize ** this.depth)
-      );
+      const index = counter - this.begin;
       if (index >= 0 &amp;&amp; index &lt; blockSize) {
         unsetBit(this.bitMap, index);
         callback(this.bitMap);
@@ -210,11 +214,17 @@ function setupBitMapConstructors (blockSize) {
     }
 
     /**
-     * Pushes a child node or leaf to the terminal end
+     * Sets a child node or leaf
+     * If the index is left null, then the child is pushed onto the terminal end
+     * @param {?number} index
      * @param {Leaf|Node} child
      */
-    pushChild (child) {
-      const index = this.bitMapTrees.push(child) - 1;
+    setChild (index, child) {
+      if (index === null) {
+        index = this.bitMapTrees.push(child) - 1;
+      } else {
+        this.bitMapTrees[index] = child;
+      }
       if (allSet(child.bitMap)) setBit(this.bitMap, index);
     }
 
@@ -222,9 +232,7 @@ function setupBitMapConstructors (blockSize) {
      * Pops the terminal child node or leaf
      */
     popChild () {
-      if (this.bitMapTrees.length) {
-        this.bitMapTrees.pop();
-      }
+      this.bitMapTrees.pop();
     }
 
     /**
@@ -232,26 +240,29 @@ function setupBitMapConstructors (blockSize) {
      * Passes a continuation to the child allocate that will
      * set the current bitmap if the child bitmap is now all set
      * It will also lazily create the child if it doesn't already exist
+     * @param {?number} counter
      * @param {function} callback
      */
-    allocate (callback) {
-      const index = firstUnset(this.bitMap);
-      if (index === null) {
+    allocate (counter, callback) {
+      let index;
+      if (counter === null) {
+        index = firstUnset(this.bitMap);
+      } else {
+        index = Math.floor(
+          (counter - this.begin) / (blockSize ** this.depth)
+        );
+      }
+      if (index === null || index &lt; 0 || index >= blockSize) {
         callback(null, null);
       } else if (this.bitMapTrees[index]) {
-        this.bitMapTrees[index].allocate((counter, bitMap) => {
+        this.bitMapTrees[index].allocate(counter, (counter, bitMap) => {
           if (bitMap &amp;&amp; allSet(bitMap)) {
             setBit(this.bitMap, index);
           }
           callback(counter, this.bitMap);
         });
       } else {
-        let newBegin = this.begin;
-        if (this.bitMapTrees.length) {
-          newBegin =
-            this.bitMapTrees[index - 1].begin +
-            (blockSize ** this.depth);
-        }
+        const newBegin = this.begin + index * (blockSize ** this.depth);
         const newDepth = this.depth - 1;
         let child;
         if (newDepth === 0) {
@@ -259,8 +270,8 @@ function setupBitMapConstructors (blockSize) {
         } else {
           child = new Node(newBegin, newDepth);
         }
-        this.pushChild(child);
-        child.allocate((counter, bitMap) => {
+        this.setChild(index, child);
+        child.allocate(counter, (counter, bitMap) => {
           if (bitMap &amp;&amp; allSet(bitMap)) {
             setBit(this.bitMap, index);
           }
@@ -323,7 +334,7 @@ class Counter {
   constructor (begin, blockSize) {
     if (typeof begin === 'undefined') begin = 0;
     if (blockSize &amp;&amp; blockSize % 32 !== 0) {
-      throw TypeError('Blocksize for BitMapTree must be a multiple of 32');
+      throw new TypeError('Blocksize for BitMapTree must be a multiple of 32');
     } else {
       // JavaScript doesn't yet have 64 bit numbers so we default to 32
       blockSize = 32;
@@ -335,23 +346,33 @@ class Counter {
 
   /**
    * Allocates a counter sequentially
+   * If a counter is specified, it will allocate it explicitly
+   * But it will skip over intermediate children, and subsequent allocations is still sequential
+   * @param {number} [counter]
    * @returns {number}
+   * @throws {RangeError} - Will throw if the explicitly allocated counter is out of bounds
    */
-  allocate () {
-    let resultCounter;
-    this._bitMapTree.allocate((counter, bitMap) => {
-      resultCounter = counter;
+  allocate (counter) {
+    let index = null;
+    if (counter !== undefined) {
+      if (counter &lt; this._begin) {
+        throw new RangeError('Counter needs to be greater or equal to the counter beginning offset');
+      }
+      index = counter - this._begin;
+    }
+    this._bitMapTree.allocate(index, (index_, bitMap) => {
+      index = index_;
     });
-    if (resultCounter !== null) {
-      return this._begin + resultCounter;
+    if (index !== null) {
+      return index + this._begin;
     } else {
       const newRoot = new this._bitMapConst.Node(
         this._bitMapTree.begin,
         this._bitMapTree.depth + 1
       );
-      newRoot.pushChild(this._bitMapTree);
+      newRoot.setChild(null, this._bitMapTree);
       this._bitMapTree = newRoot;
-      return this.allocate();
+      return this.allocate(counter);
     }
   }
 
@@ -360,7 +381,7 @@ class Counter {
    * @param {number} counter
    */
   deallocate (counter) {
-    this._bitMapTree.deallocate(counter - this._begin, function () {});
+    this._bitMapTree.deallocate(counter - this._begin, () => {});
   }
 
 }
@@ -382,7 +403,7 @@ export default Counter;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Sun Oct 01 2017 15:25:33 GMT+1100 (AEDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Sun Oct 01 2017 20:10:04 GMT+1100 (AEDT)
 </footer>
 
 <script> prettyPrint(); </script>

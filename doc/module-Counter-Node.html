@@ -168,7 +168,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Counter.js.html">Counter.js</a>, <a href="Counter.js.html#line172">line 172</a>
+        <a href="Counter.js.html">Counter.js</a>, <a href="Counter.js.html#line176">line 176</a>
     </li></ul></dd>
     
 
@@ -228,7 +228,7 @@
 
     
 
-    <h4 class="name" id="allocate"><span class="type-signature"></span>allocate<span class="signature">(callback)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="allocate"><span class="type-signature"></span>allocate<span class="signature">(counter<span class="signature-attributes">nullable</span>, callback)</span><span class="type-signature"></span></h4>
 
     
 
@@ -262,6 +262,8 @@ It will also lazily create the child if it doesn't already exist
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -270,6 +272,39 @@ It will also lazily create the child if it doesn't already exist
     </thead>
 
     <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>counter</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
     
 
         <tr>
@@ -286,6 +321,14 @@ It will also lazily create the child if it doesn't already exist
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
             
 
             
@@ -331,7 +374,7 @@ It will also lazily create the child if it doesn't already exist
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Counter.js.html">Counter.js</a>, <a href="Counter.js.html#line209">line 209</a>
+        <a href="Counter.js.html">Counter.js</a>, <a href="Counter.js.html#line218">line 218</a>
     </li></ul></dd>
     
 
@@ -489,7 +532,7 @@ and it is all unset
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Counter.js.html">Counter.js</a>, <a href="Counter.js.html#line253">line 253</a>
+        <a href="Counter.js.html">Counter.js</a>, <a href="Counter.js.html#line264">line 264</a>
     </li></ul></dd>
     
 
@@ -571,7 +614,7 @@ and it is all unset
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Counter.js.html">Counter.js</a>, <a href="Counter.js.html#line196">line 196</a>
+        <a href="Counter.js.html">Counter.js</a>, <a href="Counter.js.html#line206">line 206</a>
     </li></ul></dd>
     
 
@@ -602,14 +645,15 @@ and it is all unset
 
     
 
-    <h4 class="name" id="pushChild"><span class="type-signature"></span>pushChild<span class="signature">(child)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setChild"><span class="type-signature"></span>setChild<span class="signature">(index<span class="signature-attributes">nullable</span>, child)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    Pushes a child node or leaf to the terminal end
+    Sets a child node or leaf
+If the index is left null, then the child is pushed onto the terminal end
 </div>
 
 
@@ -633,6 +677,8 @@ and it is all unset
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -641,6 +687,39 @@ and it is all unset
     </thead>
 
     <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
     
 
         <tr>
@@ -660,6 +739,14 @@ and it is all unset
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
             
 
             
@@ -705,7 +792,7 @@ and it is all unset
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Counter.js.html">Counter.js</a>, <a href="Counter.js.html#line188">line 188</a>
+        <a href="Counter.js.html">Counter.js</a>, <a href="Counter.js.html#line194">line 194</a>
     </li></ul></dd>
     
 
@@ -753,7 +840,7 @@ and it is all unset
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Sun Oct 01 2017 15:25:33 GMT+1100 (AEDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Sun Oct 01 2017 20:10:04 GMT+1100 (AEDT)
 </footer>
 
 <script> prettyPrint(); </script>

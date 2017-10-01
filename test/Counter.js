@@ -2,11 +2,37 @@ import test from 'ava';
 import Counter from '../lib/Counter';
 
 test('allocate sequentially', t => {
-  let startingOffset = 10;
-  let c = new Counter(startingOffset);
-  for (var i = 10; i < 1000; ++i) {
+  const startingOffset = 10;
+  const c = new Counter(startingOffset);
+  for (let i = 10; i < 1000; ++i) {
     t.is(c.allocate(), i);
   }
+  for (let i = 999; i > 9; --i) {
+    c.deallocate(i);
+  }
+  t.is(c.allocate(1000), 1000);
+  for (let i = 10; i < 1000; ++i) {
+    t.is(c.allocate(), i);
+  }
+});
+
+test('allocate explicitly', t => {
+  const c = new Counter(0);
+  t.is(c.allocate(1), 1);
+  t.is(c.allocate(), 0);
+  t.is(c.allocate(), 2);
+  t.is(c.allocate(1), 1);
+  c.deallocate(1);
+  t.is(c.allocate(), 1);
+  t.is(c.allocate(32), 32);
+  t.is(c.allocate(500), 500);
+  for (let i = 3; i < 32; ++i) {
+    t.is(c.allocate(), i);
+  }
+  for (let i = 33; i < 500; ++i) {
+    t.is(c.allocate(), i);
+  }
+  t.is(c.allocate(), 501);
 });
 
 test('reuse deallocated counters sequentially', t => {
