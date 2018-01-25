@@ -14,6 +14,7 @@ test('allocate sequentially', t => {
   for (let i = 10; i < 1000; ++i) {
     t.is(c.allocate(), i);
   }
+  t.is(c.deallocate(startingOffset + 1024), false);
 });
 
 test('allocate explicitly', t => {
@@ -37,12 +38,12 @@ test('allocate explicitly', t => {
 });
 
 test('reuse deallocated counters sequentially', t => {
-  let c = new Counter();
-  let first = c.allocate();
+  const c = new Counter();
+  const first = c.allocate();
   c.allocate();
-  let third = c.allocate();
+  const third = c.allocate();
   c.allocate();
-  let fifth = c.allocate();
+  const fifth = c.allocate();
   let last;
   for (var i = 0; i < 200; ++i) {
     last = c.allocate();
@@ -54,6 +55,15 @@ test('reuse deallocated counters sequentially', t => {
   t.is(c.allocate(), third);
   t.is(c.allocate(), fifth);
   t.is(c.allocate(), last + 1);
+});
+
+test('check counter', t => {
+  const c = new Counter;
+  t.is(c.check(100), false);
+  t.is(c.allocate(100), true);
+  t.is(c.check(100), true);
+  t.is(c.deallocate(100), true);
+  t.is(c.check(100), false);
 });
 
 // shrinking performance tests rely on internal behaviour of the Counter

@@ -169,6 +169,24 @@ function setupBitMapConstructors(blockSize) {
       }
     }
 
+    /**
+     * Checks if the counter has been set
+     * @param {number} counter
+     * @param {function} callback
+     */
+    check(counter, callback) {
+      const index = counter - this.begin;
+      if (index >= 0 && index < blockSize) {
+        if (isSet(this.bitMap, index)) {
+          callback(true);
+        } else {
+          callback(false);
+        }
+      } else {
+        callback(null);
+      }
+    }
+
   }
 
   /**
@@ -279,6 +297,22 @@ function setupBitMapConstructors(blockSize) {
       }
     }
 
+    /**
+     * Checks if the counter has been set
+     * @param {number} counter
+     * @param {function} callback
+     */
+    check(counter, callback) {
+      const index = Math.floor((counter - this.begin) / Math.pow(blockSize, this.depth));
+      if (this.bitMapTrees[index]) {
+        this.bitMapTrees[index].check(counter, set => {
+          callback(set);
+        });
+      } else {
+        callback(null);
+      }
+    }
+
   }
 
   return {
@@ -317,7 +351,7 @@ class Counter {
    * Allocates a counter sequentially
    * If a counter is specified, it will allocate it explicitly
    * But it will skip over intermediate children, and subsequent allocations is still sequential
-   * @param {number} [counter]
+   * @param {?number} counter
    * @returns {number|boolean}
    * @throws {RangeError} - Will throw if the explicitly allocated counter is out of bounds
    */
@@ -332,6 +366,7 @@ class Counter {
     }
     this._bitMapTree.allocate(index, (index_, bitMap, changed_) => {
       index = index_;
+      // this can be null if the index checked is outside of the tree
       changed = changed_;
     });
     if (index !== null) {
@@ -353,9 +388,26 @@ class Counter {
   deallocate(counter) {
     let changed;
     this._bitMapTree.deallocate(counter - this._begin, (bitMap, changed_) => {
+      // this can be null if the index checked is outside of the tree
       changed = changed_;
     });
-    return changed;
+    // an index outside of the tree is assumed to be unallocated
+    return !!changed;
+  }
+
+  /**
+   * Checks if a number has been allocated or not
+   * @param {number} counter
+   * @returns {boolean}
+   */
+  check(counter) {
+    let set;
+    this._bitMapTree.check(counter - this._begin, set_ => {
+      // this can be null if the index checked is outside of the tree
+      set = set_;
+    });
+    // an index outside of the tree is assumed to be unallocated
+    return !!set;
   }
 
 }

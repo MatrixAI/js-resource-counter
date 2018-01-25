@@ -1142,6 +1142,27 @@ function setupBitMapConstructors(blockSize) {
           callback(null, null);
         }
       }
+
+      /**
+       * Checks if the counter has been set
+       * @param {number} counter
+       * @param {function} callback
+       */
+
+    }, {
+      key: 'check',
+      value: function check(counter, callback) {
+        var index = counter - this.begin;
+        if (index >= 0 && index < blockSize) {
+          if (isSet(this.bitMap, index)) {
+            callback(true);
+          } else {
+            callback(false);
+          }
+        } else {
+          callback(null);
+        }
+      }
     }]);
 
     return Leaf;
@@ -1279,6 +1300,25 @@ function setupBitMapConstructors(blockSize) {
           callback(null, null);
         }
       }
+
+      /**
+       * Checks if the counter has been set
+       * @param {number} counter
+       * @param {function} callback
+       */
+
+    }, {
+      key: 'check',
+      value: function check(counter, callback) {
+        var index = Math.floor((counter - this.begin) / Math.pow(blockSize, this.depth));
+        if (this.bitMapTrees[index]) {
+          this.bitMapTrees[index].check(counter, function (set) {
+            callback(set);
+          });
+        } else {
+          callback(null);
+        }
+      }
     }]);
 
     return Node;
@@ -1325,7 +1365,7 @@ var Counter = function () {
    * Allocates a counter sequentially
    * If a counter is specified, it will allocate it explicitly
    * But it will skip over intermediate children, and subsequent allocations is still sequential
-   * @param {number} [counter]
+   * @param {?number} counter
    * @returns {number|boolean}
    * @throws {RangeError} - Will throw if the explicitly allocated counter is out of bounds
    */
@@ -1344,6 +1384,7 @@ var Counter = function () {
       }
       this._bitMapTree.allocate(index, function (index_, bitMap, changed_) {
         index = index_;
+        // this can be null if the index checked is outside of the tree
         changed = changed_;
       });
       if (index !== null) {
@@ -1368,9 +1409,29 @@ var Counter = function () {
     value: function deallocate(counter) {
       var changed = void 0;
       this._bitMapTree.deallocate(counter - this._begin, function (bitMap, changed_) {
+        // this can be null if the index checked is outside of the tree
         changed = changed_;
       });
-      return changed;
+      // an index outside of the tree is assumed to be unallocated
+      return !!changed;
+    }
+
+    /**
+     * Checks if a number has been allocated or not
+     * @param {number} counter
+     * @returns {boolean}
+     */
+
+  }, {
+    key: 'check',
+    value: function check(counter) {
+      var set = void 0;
+      this._bitMapTree.check(counter - this._begin, function (set_) {
+        // this can be null if the index checked is outside of the tree
+        set = set_;
+      });
+      // an index outside of the tree is assumed to be unallocated
+      return !!set;
     }
   }]);
 
