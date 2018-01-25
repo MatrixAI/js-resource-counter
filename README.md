@@ -29,7 +29,7 @@ c.allocate(100); // returns boolean indicating whether 100 was previously unallo
 Documentation
 --------------
 
-Documentation is located in the `doc` folder. You can also view the [rendered HTML](https://cdn.rawgit.com/MatrixAI/js-resource-counter/ce46e973/doc/index.html).
+Documentation is located in the `doc` folder. You can also view the [rendered HTML](http://cdn.rawgit.com/MatrixAI/js-resource-counter/b6a555e2/doc/index.html).
 
 Performance behaviour is lazy memory allocation on counter allocation (for both balanced tree growth and explicit counter allocation). This laziness means intermediate tree nodes won't be allocated when explicitly allocating a counter that has intermediate values. For example allocating only 0 and 500, tree nodes won't be created eagerly in anticipation for counter values 1 to 499.
 
