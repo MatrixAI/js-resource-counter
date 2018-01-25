@@ -355,7 +355,7 @@ class Counter {
    * Allocates a counter sequentially
    * If a counter is specified, it will allocate it explicitly
    * But it will skip over intermediate children, and subsequent allocations is still sequential
-   * @param {?number} counter
+   * @param {number} [counter]
    * @returns {number|boolean}
    * @throws {RangeError} - Will throw if the explicitly allocated counter is out of bounds
    */
