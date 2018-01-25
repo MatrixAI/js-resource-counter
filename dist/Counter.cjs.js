@@ -26,7 +26,7 @@ function setupBitMapConstructors(blockSize) {
    * Creates a new bitmap sized according to the block size
    * @returns {BitSet}
    */
-  const createBitMap = function createBitMap() {
+  const createBitMap = () => {
     return new BitSet(new Uint8Array(blockSize / 8 - 1)).flip(0, blockSize - 1);
   };
 
@@ -36,7 +36,7 @@ function setupBitMapConstructors(blockSize) {
    * @param {number} i
    * @returns {BitSet}
    */
-  const setBit = function setBit(bitMap, i) {
+  const setBit = (bitMap, i) => {
     return bitMap.set(i, 0);
   };
 
@@ -46,7 +46,7 @@ function setupBitMapConstructors(blockSize) {
    * @param {number} i
    * @returns {BitSet}
    */
-  const unsetBit = function unsetBit(bitMap, i) {
+  const unsetBit = (bitMap, i) => {
     return bitMap.set(i, 1);
   };
 
@@ -55,7 +55,7 @@ function setupBitMapConstructors(blockSize) {
    * @param {BitSet} bitMap
    * @returns {bool}
    */
-  const allSet = function allSet(bitMap) {
+  const allSet = bitMap => {
     return bitMap.isEmpty();
   };
 
@@ -64,7 +64,7 @@ function setupBitMapConstructors(blockSize) {
    * @param {BitSet} bitMap
    * @returns {bool}
    */
-  const allUnset = function allUnset(bitMap) {
+  const allUnset = bitMap => {
     return bitMap.cardinality() === blockSize;
   };
 
