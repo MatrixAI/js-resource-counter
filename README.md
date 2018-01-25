@@ -16,14 +16,14 @@ let first = c.allocate();
 let second = c.allocate();
 let third = c.allocate();
 let fourth = c.allocate();
-c.deallocate(second);
+c.deallocate(second); // returns boolean indicating whether second was previously allocated
 c.deallocate(third);
 console.log(c.allocate() === second);
 console.log(c.allocate() === third);
 console.log(c.allocate() === (fourth + 1));
 // you can also explicitly set a specific number
 // and all subsequent allocations are still sequential
-c.allocate(100);
+c.allocate(100); // returns boolean indicating whether 100 was previously unallocated
 ```
 
 Documentation
