@@ -1,6 +1,6 @@
 # js-resource-counter
 
-Sequentially Allocatable and Deallocatable Resource Counter written in JavaScript. It is useful for tracking resource usage such as inodes and file descriptors. The resource counter is backed by a new lazy recursive perfectly balanced dynamically growing and shrinking bitmap tree data structure. This allows logarithmic allocation and deallocation performance. It's memory usage is better than the alternative deallocated stack + counter method.
+Sequentially Allocatable and Deallocatable Resource Counter written in JavaScript. It is useful for tracking resource usage such as inodes and file descriptors. The resource counter is backed by a new lazy recursive perfectly balanced dynamically growing and shrinking fully-persistent bitmap tree data structure. This allows logarithmic allocation and deallocation performance. It's memory usage is better than the alternative deallocated stack + counter method.
 
 Basic Usage
 ------------
@@ -11,20 +11,62 @@ npm install --save 'resource-counter';
 
 ```js
 import Counter from 'resource-counter';
+
 let c = new Counter;
-let first = c.allocate();
-let second = c.allocate();
-let third = c.allocate();
-let fourth = c.allocate();
-c.deallocate(second); // returns boolean indicating whether second was previously allocated
-c.deallocate(third);
-console.log(c.allocate() === second);
-console.log(c.allocate() === third);
-console.log(c.allocate() === (fourth + 1));
+let first = c.allocate(); // 1
+let second = c.allocate(); // 2
+let third = c.allocate(); // 3
+let fourth = c.allocate(); // 4
+c.deallocate(second); // true
+c.deallocate(third); // true
+console.log(c.allocate() === second); // true
+console.log(c.allocate() === third); // true
+console.log(c.allocate() === (fourth + 1)); // true
+
 // you can also explicitly set a specific number
 // and all subsequent allocations are still sequential
-c.allocate(100); // returns boolean indicating whether 100 was previously unallocated
+// explicitly allocating number returns a "changed" boolean
+c.allocate(100); // true
+c.allocate(100); // false
+
+// you can check whether a number was allocated or not
+c.check(100); // false
 ```
+
+There is also an alternate `CounterImmutable` that gives a fully-persistent counter using structure sharing by path-copying strategy.
+
+```js
+import { CounterImmutable } from 'resource-counter';
+
+// c is being reassigned on every modification
+// however each intermediate c can be used
+// if you do use them, then you will now have diverging cs
+let c = new CounterImmutable;
+let first, second, third, fourth;
+[first, c] = c.allocate();
+[second, c] = c.allocate();
+[third, c] = c.allocate();
+[fourth, c] = c.allocate();
+[, c] = c.deallocate(second);
+[, c] = c.deallocate(third);
+let first_, second_, fifth_;
+[first_, c] = c.allocate();
+[second_, c] = c.allocate();
+[fifth_, c] = c.allocate();
+console.log(first_ === second); // true
+console.log(second_ === third); // true
+console.log(fifth_ === (fourth + 1)); // true
+
+// you can also perform a transaction
+c = c.transaction((ct) => {
+  const number = ct.allocate();
+  ct.allocate();
+  ct.deallocate(number);
+  console.log(number); // 5
+});
+```
+
+This can be useful if you need to combine `CounterImmutable` with other fully-persistent data structures to create composite data structures.
 
 Documentation
 --------------
@@ -33,9 +75,7 @@ Documentation is located in the `doc` folder. You can also view the [rendered HT
 
 Performance behaviour is lazy memory allocation on counter allocation (for both balanced tree growth and explicit counter allocation). This laziness means intermediate tree nodes won't be allocated when explicitly allocating a counter that has intermediate values. For example allocating only 0 and 500, tree nodes won't be created eagerly in anticipation for counter values 1 to 499.
 
-Memory deallocation only occurs when the highest counter is deallocated and the entire counter block for the leaf that it occupies are all also deallocated. So memory deallocation won't occur for deallocating intermediate counter values. Also the
-
-It's possible to make the tree also eagerly deallocate memory even for intermediate counter deallocations, but this is inefficient, since you will probably have to use those counter values again later anyway. It may reduce dynamic memory usage, but at the cost of repeatedly allocating and deallocating memory for the same counter value.
+By default both `Counter` and `CounterImmutable` will lazily grow and shrink the tree as necessary. However shrinking adds extra performance overhead for the benefit of more tighter memory usage. If you expect to always use the same set of numbers for allocation and deallocation, it will be faster if you disable shrinking. You can do this by passing the `shrink` parameter as `false`. See the documentation for more.
 
 Development
 ------------

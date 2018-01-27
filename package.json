@@ -17,9 +17,10 @@
   "browser": "dist/Counter-browser.js",
   "scripts": {
     "test": "ava -v",
-    "doc": "jsdoc ./lib --destination ./doc --recurse",
+    "doc": "documentation build ./lib/** -f html -o ./doc",
     "rollup": "rollup --config",
-    "build": "npm test && npm run doc && npm run rollup"
+    "dos2unix": "dos2unix dist/*",
+    "build": "npm test && npm run doc && npm run rollup && npm run dos2unix"
   },
   "ava": {
     "require": "babel-register",
@@ -29,18 +30,21 @@
     "node": ">=6.11.1"
   },
   "dependencies": {
+    "babel-runtime": "^6.26.0",
     "bitset.js": "^4.0.1"
   },
   "devDependencies": {
     "ava": "^0.19.1",
-    "babel-cli": "^6.24.1",
-    "babel-plugin-external-helpers": "^6.22.0",
-    "babel-preset-env": "^1.5.2",
-    "babel-register": "^6.24.1",
-    "jsdoc": "^3.4.3",
-    "rollup": "^0.43.0",
-    "rollup-plugin-babel": "^2.7.1",
-    "rollup-plugin-commonjs": "^8.0.2",
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-flow": "^6.23.0",
+    "babel-register": "^6.26.0",
+    "documentation": "^5.3.3",
+    "rollup": "^0.51.5",
+    "rollup-plugin-babel": "^3.0.2",
+    "rollup-plugin-commonjs": "^8.2.6",
     "rollup-plugin-node-resolve": "^3.0.0"
   }
 }

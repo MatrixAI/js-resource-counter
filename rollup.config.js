@@ -7,62 +7,98 @@ const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 
 export default [
   {
-    entry: 'lib/Counter.js',
-    format: 'es',
-    external: Object.keys(packageJson.dependencies),
+    input: 'lib/index.js',
+    output: {
+      file: 'dist/index.node.es.js',
+      format: 'es'
+    },
+    external: (id) => {
+      return Object.keys(packageJson.dependencies)
+        .concat(Object.keys(packageJson.devDependencies))
+        .map((dep) => new RegExp('^' + dep))
+        .concat([/^babel-runtime/])
+        .some((pattern) => pattern.test(id));
+    },
     plugins: [
       babel({
         babelrc: false,
         exclude: 'node_modules/**',
-        presets: [['env', {
-          modules: false,
-          targets: {
-            node: '6.0.0'
-          }
-        }]]
+        runtimeHelpers: true,
+        plugins: ['transform-runtime'],
+        presets: [
+          'flow',
+          ['env', {
+            modules: false,
+            targets: {
+              node: '6.4.0'
+            }
+          }]
+        ]
       })
-    ],
-    dest: 'dist/Counter.es.js'
+    ]
   },
   {
-    entry: 'lib/Counter.js',
-    format: 'cjs',
-    external: Object.keys(packageJson.dependencies),
+    input: 'lib/index.js',
+    output: {
+      file: 'dist/index.node.cjs.js',
+      format: 'cjs'
+    },
+    external: (id) => {
+      return Object.keys(packageJson.dependencies)
+        .concat(Object.keys(packageJson.devDependencies))
+        .map((dep) => new RegExp('^' + dep))
+        .concat([/^babel-runtime/])
+        .some((pattern) => pattern.test(id));
+    },
     plugins: [
       babel({
         babelrc: false,
         exclude: 'node_modules/**',
-        presets: [['env', {
-          modules: false,
-          targets: {
-            node: '6.0.0'
-          }
-        }]]
+        runtimeHelpers: true,
+        plugins: ['transform-runtime'],
+        presets: [
+          'flow',
+          ['env', {
+            modules: false,
+            targets: {
+              node: '6.4.0'
+            }
+          }]
+        ]
       })
-    ],
-    dest: 'dist/Counter.cjs.js'
+    ]
   },
   {
-    entry: 'lib/Counter.js',
-    format: 'umd',
-    moduleName: 'Counter',
+    input: 'lib/index.js',
+    output: {
+      file: 'dist/index.browser.umd.js',
+      format: 'umd',
+      name: 'VirtualFS'
+    },
     plugins: [
       babel({
         babelrc: false,
         exclude: 'node_modules/**',
-        presets: [['env', {
-          modules: false,
-          targets: {
-            "browsers": ["last 2 versions"]
-          }
-        }]]
+        runtimeHelpers: true,
+        plugins: [
+          'transform-class-properties',
+          'transform-runtime'
+        ],
+        presets: [
+          'flow',
+          ['env', {
+            modules: false,
+            targets: {
+              browsers: ['last 2 versions']
+            }
+          }]
+        ]
       }),
       resolve({
         preferBuiltins: false,
         browser: true
       }),
       commonjs()
-    ],
-    dest: 'dist/Counter-browser.js'
+    ]
   }
 ];

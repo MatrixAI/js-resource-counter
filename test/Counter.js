@@ -1,5 +1,5 @@
 import test from 'ava';
-import Counter from '../lib/Counter';
+import Counter from '../lib/Counter.js';
 
 test('allocate sequentially', t => {
   const startingOffset = 10;
@@ -64,56 +64,4 @@ test('check counter', t => {
   t.is(c.check(100), true);
   t.is(c.deallocate(100), true);
   t.is(c.check(100), false);
-});
-
-// shrinking performance tests rely on internal behaviour of the Counter
-
-test('shrinking on leaf', t => {
-  let blockSize = 32;
-  let c = new Counter(0, blockSize);
-  let i;
-  // allocate 2 * block size
-  for (i = 0; i < blockSize * 2; ++i) {
-    c.allocate();
-  }
-  t.is(c._bitMapTree.bitMapTrees.length, 2);
-  // deallocate the second terminal block
-  for (i = blockSize; i < blockSize * 2; ++i) {
-    c.deallocate(i);
-  }
-  // terminal block should be deleted
-  t.is(c._bitMapTree.bitMapTrees.length, 1);
-  t.is(c.allocate(), blockSize);
-  t.is(c._bitMapTree.bitMapTrees.length, 2);
-  t.is(c.allocate(), blockSize + 1);
-  // deallocate the first block
-  for (i = 0; i < blockSize; ++i) {
-    c.deallocate(i);
-  }
-  // initial block should not be deleted
-  t.is(c._bitMapTree.bitMapTrees.length, 2);
-  t.is(c.allocate(), 0);
-});
-
-test('shrinking and propagating up the tree', t => {
-  let blockSize = 32;
-  let c = new Counter(0, blockSize);
-  let i;
-  // allocate to depth 2, but multiply by 2 requiring 2 branches
-  for (i = 0; i < (blockSize ** 2) * 2; ++i) {
-    c.allocate();
-  }
-  t.is(c._bitMapTree.bitMapTrees.length, 2);
-  // deallocate second half of the second branch
-  for (i = ((blockSize ** 2) * 1.5); i < (blockSize ** 2) * 2; ++i) {
-    c.deallocate(i);
-  }
-  t.is(c._bitMapTree.bitMapTrees.length, 2);
-  // now deallocate first half of the second branch
-  for (i = (blockSize ** 2); i < (blockSize ** 2) * 1.5; ++i) {
-    c.deallocate(i);
-  }
-  t.is(c._bitMapTree.bitMapTrees.length, 1);
-  t.is(c.allocate(), (blockSize ** 2));
-  t.is(c._bitMapTree.bitMapTrees.length, 2);
 });
