@@ -27,7 +27,7 @@
     "babel": "inherit"
   },
   "engines": {
-    "node": ">=6.11.1"
+    "node": ">=6.4.0"
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
