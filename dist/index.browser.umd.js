@@ -729,7 +729,7 @@ function allocate(tree, counter, snapshot) {
   // $FlowFixMe: changed is initialised
   return [counter, changed, treeNew];
 }
-/** @module CounterUtil */
+/** @module counterUtil */
 
 function deallocate(tree, counter, snapshot) {
   var changed = void 0;
@@ -2251,7 +2251,7 @@ var bitset = createCommonjsModule(function (module, exports) {
 })(commonjsGlobal);
 });
 
-/** @module BitMap */
+/** @module bitMap */
 
 // bitset library uses 32 bits numbers internally
 // it preemptively adds an extra number whan it detects it's full

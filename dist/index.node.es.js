@@ -14,7 +14,7 @@ function allocate(tree, counter, snapshot) {
   // $FlowFixMe: changed is initialised
   return [counter, changed, treeNew];
 }
-/** @module CounterUtil */
+/** @module counterUtil */
 
 function deallocate(tree, counter, snapshot) {
   let changed;
@@ -35,7 +35,7 @@ function check(tree, counter) {
   return !!set;
 }
 
-/** @module BitMap */
+/** @module bitMap */
 
 // bitset library uses 32 bits numbers internally
 // it preemptively adds an extra number whan it detects it's full
