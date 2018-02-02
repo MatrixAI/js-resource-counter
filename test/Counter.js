@@ -8,26 +8,26 @@ test('allocate sequentially', t => {
     t.is(c.allocate(), i);
   }
   for (let i = 999; i > 9; --i) {
-    t.is(c.deallocate(i), true);
+    t.true(c.deallocate(i));
   }
-  t.is(c.allocate(1000), true);
+  t.true(c.allocate(1000));
   for (let i = 10; i < 1000; ++i) {
     t.is(c.allocate(), i);
   }
-  t.is(c.deallocate(startingOffset + 1024), false);
+  t.false(c.deallocate(startingOffset + 1024));
 });
 
 test('allocate explicitly', t => {
   const c = new Counter(0);
-  t.is(c.allocate(1), true);
+  t.true(c.allocate(1));
   t.is(c.allocate(), 0);
   t.is(c.allocate(), 2);
-  t.is(c.allocate(1), false);
-  t.is(c.deallocate(1), true);
-  t.is(c.deallocate(1), false);
+  t.false(c.allocate(1));
+  t.true(c.deallocate(1));
+  t.false(c.deallocate(1));
   t.is(c.allocate(), 1);
-  t.is(c.allocate(32), true);
-  t.is(c.allocate(500), true);
+  t.true(c.allocate(32));
+  t.true(c.allocate(500));
   for (let i = 3; i < 32; ++i) {
     t.is(c.allocate(), i);
   }
@@ -59,9 +59,9 @@ test('reuse deallocated counters sequentially', t => {
 
 test('check counter', t => {
   const c = new Counter;
-  t.is(c.check(100), false);
-  t.is(c.allocate(100), true);
-  t.is(c.check(100), true);
-  t.is(c.deallocate(100), true);
-  t.is(c.check(100), false);
+  t.false(c.check(100));
+  t.true(c.allocate(100));
+  t.true(c.check(100));
+  t.true(c.deallocate(100));
+  t.false(c.check(100));
 });

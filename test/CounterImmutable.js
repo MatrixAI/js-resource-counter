@@ -12,16 +12,16 @@ test('allocate sequentially', t => {
   }
   for (let i = 999; i > 9; --i) {
     [changed, cNext] = cNext.deallocate(i);
-    t.is(changed, true);
+    t.true(changed);
   }
   [changed, cNext] = cNext.allocate(1000);
-  t.is(changed, true);
+  t.true(changed);
   for (let i = 10; i < 1000; ++i) {
     [assigned, cNext] = cNext.allocate();
     t.is(assigned, i);
   }
   [changed, cNext] = cNext.deallocate(startingOffset + 1024);
-  t.is(changed, false);
+  t.false(changed);
 });
 
 test('allocate explicitly', t => {
@@ -29,23 +29,23 @@ test('allocate explicitly', t => {
   let assigned;
   let changed;
   [changed, cNext] = cNext.allocate(1);
-  t.is(changed, true);
+  t.true(changed);
   [assigned, cNext] = cNext.allocate();
   t.is(assigned, 0);
   [assigned, cNext] = cNext.allocate();
   t.is(assigned, 2);
   [changed, cNext] = cNext.allocate(1);
-  t.is(changed, false);
+  t.false(changed);
   [changed, cNext] = cNext.deallocate(1);
-  t.is(changed, true);
+  t.true(changed);
   [changed, cNext] = cNext.deallocate(1);
-  t.is(changed, false);
+  t.false(changed);
   [assigned, cNext] = cNext.allocate();
   t.is(assigned, 1);
   [changed, cNext] = cNext.allocate(32);
-  t.is(changed, true);
+  t.true(changed);
   [changed, cNext] = cNext.allocate(500);
-  t.is(changed, true);
+  t.true(changed);
   for (let i = 3; i < 32; ++i) {
     [assigned, cNext] = cNext.allocate();
     t.is(assigned, i);
@@ -92,15 +92,15 @@ test('check counter', t => {
   let cNext = new CounterImmutable(0);
   let changed;
   changed  = cNext.check(100);
-  t.is(changed, false);
+  t.false(changed);
   [changed, cNext] = cNext.allocate(100);
-  t.is(changed, true);
+  t.true(changed);
   changed = cNext.check(100);
-  t.is(changed, true);
+  t.true(changed);
   [changed, cNext] = cNext.deallocate(100);
-  t.is(changed, true);
+  t.true(changed);
   changed = cNext.check(100);
-  t.is(changed, false);
+  t.false(changed);
 });
 
 test('transactional operations', t => {
@@ -108,18 +108,18 @@ test('transactional operations', t => {
   let cNext;
   // a transaction that did nothing doesn't create anything
   cNext = cOrig.transaction((ct) => {
-    t.is(ct.check(1), false);
-    t.is(ct.check(100000), false);
+    t.false(ct.check(1));
+    t.false(ct.check(100000));
   });
   t.is(cNext, cOrig);
   // a transaction that changed things must not return the same counter
   cNext = cNext.transaction((ct) => {
     t.is(ct.allocate(), 0);
     t.is(ct.allocate(), 1);
-    t.is(ct.check(0), true);
-    t.is(ct.deallocate(0), true);
-    t.is(ct.deallocate(1), true);
-    t.is(ct.check(0), false);
+    t.true(ct.check(0));
+    t.true(ct.deallocate(0));
+    t.true(ct.deallocate(1));
+    t.false(ct.check(0));
   });
   t.not(cNext, cOrig);
   [, cNext] = cNext.allocate();
@@ -127,16 +127,16 @@ test('transactional operations', t => {
   // so it must not be the same object
   let cNext_;
   cNext = cNext.transaction((ct) => {
-    t.is(ct.check(0), true);
-    t.is(ct.deallocate(0), true);
+    t.true(ct.check(0));
+    t.true(ct.deallocate(0));
     cNext_ = cNext.transaction((ct) => {
-      t.is(ct.check(0), true);
-      t.is(ct.deallocate(0), true);
+      t.true(ct.check(0));
+      t.true(ct.deallocate(0));
     });
   });
   t.not(cNext, cNext_);
-  t.is(cNext.check(0), false);
-  t.is(cNext_.check(0), false);
+  t.false(cNext.check(0));
+  t.false(cNext_.check(0));
 });
 
 test('full persistence', t => {
@@ -150,25 +150,43 @@ test('full persistence', t => {
   t.not(c1, c2);
   t.not(c2, c3);
   // c1 query and updates
-  t.is(c1.check(0), false);
+  t.false(c1.check(0));
   [assigned,] = c1.allocate();
   t.is(assigned, 0);
-  t.is(c1.check(0), false);
+  t.false(c1.check(0));
   // c2 query and updates
-  t.is(c2.check(0), true);
+  t.true(c2.check(0));
   [assigned,] = c2.allocate();
   t.is(assigned, 1);
   [changed,] = c2.deallocate(0);
-  t.is(changed, true);
-  t.is(c2.check(1), false);
+  t.true(changed);
+  t.false(c2.check(1));
   // c3 query and updates
-  t.is(c3.check(0), true);
-  t.is(c3.check(1), true);
+  t.true(c3.check(0));
+  t.true(c3.check(1));
   [assigned,] = c3.allocate();
   t.is(assigned, 2);
   [changed,] = c3.deallocate(0);
-  t.is(changed, true);
+  t.true(changed);
   [changed,] = c3.deallocate(1);
-  t.is(changed, true);
-  t.is(c3.check(2), false);
+  t.true(changed);
+  t.false(c3.check(2));
+});
+
+test.cb('transaction operations that are asynchronous will diverge the trees - async', t => {
+  let c = new CounterImmutable;
+  c = c.transaction((ct) => {
+    // the transaction will finish before this async code runs
+    setTimeout(() => {
+      // the ct here now refers to a different tree
+      ct.allocate(100);
+      t.true(ct.check(100));
+      // c which is now the returned counter from the transaction
+      // still doesn't have the 100 allocated
+      t.false(c.check(100));
+      t.end();
+    }, 1);
+    t.false(ct.check(100));
+  });
+  t.false(c.check(100));
 });
