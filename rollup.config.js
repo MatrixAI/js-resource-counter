@@ -73,7 +73,7 @@ export default [
     output: {
       file: 'dist/index.browser.umd.js',
       format: 'umd',
-      name: 'VirtualFS'
+      name: 'resource-counter'
     },
     plugins: [
       babel({
