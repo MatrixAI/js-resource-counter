@@ -1,6 +1,6 @@
 import _slicedToArray from 'babel-runtime/helpers/slicedToArray';
 import _Object$keys from 'babel-runtime/core-js/object/keys';
-import BitSet from 'bitset.js';
+import BitSet from 'bitset';
 import _WeakSet from 'babel-runtime/core-js/weak-set';
 
 function allocate(tree, counter, snapshot) {

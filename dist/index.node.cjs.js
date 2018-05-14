@@ -6,7 +6,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var _slicedToArray = _interopDefault(require('babel-runtime/helpers/slicedToArray'));
 var _Object$keys = _interopDefault(require('babel-runtime/core-js/object/keys'));
-var BitSet = _interopDefault(require('bitset.js'));
+var BitSet = _interopDefault(require('bitset'));
 var _WeakSet = _interopDefault(require('babel-runtime/core-js/weak-set'));
 
 function allocate(tree, counter, snapshot) {
